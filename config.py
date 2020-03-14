@@ -1,8 +1,10 @@
 import os
+import redis
 
 class Config(object):
     DEBUG = False
     TESTING = False
+    SESSION_TYPE='filesystem'
     
 
 class ProductionConfig(Config):
