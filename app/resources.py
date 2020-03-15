@@ -7,7 +7,7 @@ from flask import jsonify
 
 from app import db
 from app.models import Product, Offer
-from app.functions import register_product
+from app.functions import register_product, refresh_offer_prices
 
 parser = reqparse.RequestParser()
 parser.add_argument('name', type=str, help='Product name is required', required=True)
@@ -57,3 +57,8 @@ class ProductAPI(Resource):
         product.deleted = datetime.now()
         db.session.commit()
         return jsonify(product.serialize)
+
+
+class JobsAPI(Resource):
+    def post(self):
+        do_async_task.delay()

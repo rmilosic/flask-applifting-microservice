@@ -8,9 +8,10 @@ from . import db
 
 class Offer(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, nullable=False, default=uuid.uuid4)
-    price = db.Column(db.String(120), unique=True, nullable=False)
+    seller_id = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.String(120), nullable=False)
     items_in_stock = db.Column(db.String(120), nullable=False)
-    found_date = db.Column(db.DateTime, nullable=False)
+    found_date = db.Column(db.DateTime, nullable=False, default=datetime.now())
     product_id = db.Column(UUID(as_uuid=True), db.ForeignKey('product.id'),
         nullable=False)
     
