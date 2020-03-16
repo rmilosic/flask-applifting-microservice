@@ -1,10 +1,10 @@
 from datetime import datetime
 import uuid
+import json
 
 from sqlalchemy.dialects.postgresql import UUID
 
 from . import db
-
 
 class Offer(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, nullable=False, default=uuid.uuid4)
@@ -30,7 +30,7 @@ class Product(db.Model):
     @property
     def serialize(self):
         return {
-            "id": self.id,
+            "id": self.id.hex,
             "name": self.name,
             "description": self.description,
             "created": self.created,

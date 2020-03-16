@@ -1,7 +1,6 @@
 from celery.schedules import crontab
 import os
 
-CELERY_BROKER_URL = os.environ["CELERY_BROKER_URL"]
 
 CELERY_IMPORTS = ('app.functions')
 CELERY_TASK_RESULT_EXPIRES = 30

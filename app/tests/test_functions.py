@@ -9,8 +9,10 @@ from app.models import Product, Offer
 
 
 def test_get_or_set_access_token(client):
-    """Test if authorisation token is being retrieved"""
-    rv = client.get('products')
+    """
+    Test if authorisation token is being retrieved
+    """
+    rv = client.get('/products')
     token_name = 'TEST_TOKEN'
     access_token = functions.get_or_set_access_token(
         token_name,
@@ -19,7 +21,9 @@ def test_get_or_set_access_token(client):
     assert isinstance(access_token, str)
 
 def test_set_access_token(client):
-    """Test if authorisation token is being set"""
+    """
+    Test if authorisation token is being set
+    """
     rv = client.get('/products')
     token_name = 'TEST_TOKEN'
     assert session.get(token_name) == None
@@ -30,7 +34,9 @@ def test_set_access_token(client):
     assert isinstance(session[token_name], str)
 
 def test_register_product(client):
-    """Test if product is successfully registered"""
+    """
+    Test if product is successfully registered
+    """
     client.get('/products')
     id = uuid.uuid1()
     product = Product(
@@ -44,15 +50,30 @@ def test_register_product(client):
     assert response.json().get('id') == str(product.id)
 
 def test_refresh_offer_prices(client):
-    """Test if function finishes execution"""
+    """
+    Test if function finishes execution
+    """
     rv = client.get('/products')
     response = functions.refresh_offer_prices()
     assert response["code"] == "OK"
    
 
-def test_call_offers_microservice(client):
-    """Test API call to offers microservice"""
+def test_call_offers_microservice(client, ):
+    """
+    Test API call to offers microservice
+    """
     rv = client.get('/products')
     product_id = '1'
     response = functions.call_offers_microservice(product_id)
     assert response.status_code == 200
+
+
+
+def test_validate_uuid_string():
+    """
+    Test the validation of uuid strings
+    """
+    valid_uuid_string = uuid.uuid4()
+    invalid_uuid_string = "123124"
+    assert functions.validate_uuid4(valid_uuid_string) == True
+    assert functions.validate_uuid4(invalid_uuid_string) == False
