@@ -146,6 +146,7 @@ class OfferTrendAPI(Resource):
         Gets an array of prices for a particular seller id
         """
         offer_prices = Offer.query.filter_by(seller_id=seller_id).with_entities(Offer.price).all()
-        return make_response(jsonify(offer_prices), 200)
+        offer_prices_flat_list = [price for sublist in offer_prices for price in sublist]
+        return make_response(jsonify(offer_prices_flat_list), 200)
 
     

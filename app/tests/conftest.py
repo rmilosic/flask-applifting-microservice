@@ -11,7 +11,8 @@ from app.models import Product, Offer
 @pytest.fixture
 def client():
     app = create_app()
- 
+    
+    
     # Flask provides a way to test your application by exposing the Werkzeug test Client
     # and handling the context locals for you.
     
