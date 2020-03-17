@@ -1,8 +1,10 @@
 from celery.schedules import crontab
 import os
 
+BROKER_URL="redis://localhost:6379/0"
+CELERY_RESULT_BACKEND="redis://localhost:6379/1"
 
-CELERY_IMPORTS = ('app.functions')
+CELERY_IMPORTS = ('app.tasks')
 CELERY_TASK_RESULT_EXPIRES = 30
 CELERY_TIMEZONE = 'Europe/Prague'
 
@@ -12,7 +14,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 CELERYBEAT_SCHEDULE = {
     'test-celery': {
-        'task': 'app.functions.refresh_offer_prices',
+        'task': 'app.tasks.refresh_offer_prices',
         # Every minute
         'schedule': crontab()
     }

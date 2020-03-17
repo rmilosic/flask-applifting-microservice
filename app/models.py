@@ -8,13 +8,24 @@ from . import db
 
 class Offer(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, nullable=False, default=uuid.uuid4)
-    seller_id = db.Column(db.Integer, nullable=False)
-    price = db.Column(db.String(120), nullable=False)
+    seller_id = db.Column(db.String(120), nullable=False)
+    price = db.Column(db.Integer, nullable=False)
     items_in_stock = db.Column(db.String(120), nullable=False)
     found_date = db.Column(db.DateTime, nullable=False, default=datetime.now())
     product_id = db.Column(UUID(as_uuid=True), db.ForeignKey('product.id'),
         nullable=False)
     
+    @property
+    def serialize(self):
+        return {
+            "id": self.id,
+            "seller_id": self.seller_id,
+            "price": self.price,
+            "items_in_stock": self.items_in_stock,
+            "found_date": self.found_date,
+            "product_id": self.product_id
+        }
+
     def __repr__(self):
         return '<Offer %r>' % self.id
 
@@ -30,7 +41,7 @@ class Product(db.Model):
     @property
     def serialize(self):
         return {
-            "id": self.id.hex,
+            "id": self.id,
             "name": self.name,
             "description": self.description,
             "created": self.created,

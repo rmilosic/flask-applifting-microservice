@@ -6,6 +6,7 @@ class Config(object):
     TESTING = False
     SESSION_TYPE='filesystem'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
 
 class DevelopmentConfig(Config):
     DEBUG = True

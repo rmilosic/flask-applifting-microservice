@@ -1,18 +1,64 @@
+from datetime import datetime
+import uuid
 import os
 import requests
 from datetime import datetime
 from typing import Union
-import uuid
 
 from flask import session
 from flask import current_app
 
 from app import db
+
 from app.models import Product, Offer
 
-from . import celery
-
 offer_microservice_token_name = 'OFFER_ACCESS_TOKEN'
+
+def refresh_offer_prices() -> dict:
+    """
+    Celery task for retrieving offers and their prices for 
+    individual products
+    """
+    started = datetime.now()  
+    # products in scope (non-deleted)
+   
+    products = Product.query.filter(Product.deleted==None).all()
+    
+    
+    # loop through non-deleted products 
+    for product in products:
+
+        # call offer microservice with correct product id
+        response = call_offers_microservice(str(product.id))
+        
+        
+        if response.status_code == 200:
+            offer_list = response.json()
+        else:
+            # current_app.logger.info(f"Offer response with status code: {response.status_code}")
+            continue
+        
+        # loop found offers items and save to db 
+        for offer_item in offer_list:
+            offer = Offer(
+                seller_id=offer_item.get("id"),
+                price=offer_item.get("price"),
+                items_in_stock=offer_item.get("items_in_stock"),
+                product_id=product.id
+            )
+            db.session.add(offer)
+            db.session.commit()
+
+            # current_app.logger.info(f"Saved {len(offer_list)} for item id: {product.id}")
+        
+        
+    return {
+        "code": "OK",
+        "message": "Successfuly saved offers",
+        "started": started,
+        "finished": datetime.now()
+    }
+
 
 def register_product(product: Product) -> str:
     """
@@ -29,7 +75,7 @@ def register_product(product: Product) -> str:
     headers = {
         "Bearer": access_token
     }
-    current_app.logger.info(f"Headers: {headers}")
+    # current_app.logger.info(f"Headers: {headers}")
     response = requests.post(
         register_url,
         data={
@@ -38,7 +84,7 @@ def register_product(product: Product) -> str:
             "description": product.description
         },
         headers=headers)
-    current_app.logger.info(response)
+    # current_app.logger.info(response)
     return response
     
 def get_offer_microservice_auth_token() -> str:
@@ -48,7 +94,7 @@ def get_offer_microservice_auth_token() -> str:
     base_url = os.environ['OFFERS_MICROSERVICE_BASE_URL']
     response_json = requests.post(base_url+'/auth').json()
     access_token = response_json["access_token"]
-    current_app.logger.info(f"retrieved access token {access_token}")
+    # current_app.logger.info(f"retrieved access token {access_token}")
     return access_token
 
 def set_access_token(token_name: str, get_token_func: callable) -> None:
@@ -58,7 +104,7 @@ def set_access_token(token_name: str, get_token_func: callable) -> None:
     # base url of microsevices and appended
     access_token = get_offer_microservice_auth_token()
     session[token_name] = access_token
-    current_app.logger.info(f"set access token {session.get(token_name)}")
+    # current_app.logger.info(f"set access token {session.get(token_name)}")
 
 def get_or_set_access_token(token_name: str, get_token_func: callable) -> str:
     """
@@ -90,50 +136,7 @@ def call_offers_microservice(product_id: str) -> requests.Response:
 
     return response
 
-@celery.task
-def refresh_offer_prices() -> dict:
-    """
-    Celery task for retrieving offers and their prices for 
-    individual products
-    """
-    started = datetime.now()  
-    # products in scope (non-deleted)
-    products = Product.query.filter(Product.deleted==None).all()
-    
-    
-    # loop through non-deleted products 
-    for product in products:
 
-        # call offer microservice with correct product id
-        response = call_offers_microservice(str(product.id))
-        
-        
-        if response.status_code == 200:
-            offer_list = response.json()
-        else:
-            current_app.logger.info(f"Offer response with status code: {response.status_code}")
-            continue
-        
-        # loop found offers items and save to db 
-        for offer_item in offer_list:
-            offer = Offer(
-                seller_id=offer_item.get("id"),
-                price=offer_item.get("price"),
-                items_in_stock=offer_item.get("items_in_stock"),
-                product_id=product.id
-            )
-            db.session.add(offer)
-            db.session.commit()
-
-            current_app.logger.info(f"Saved {len(offer_list)} for item id: {product.id}")
-        
-        
-    return {
-        "code": "OK",
-        "message": "Successfuly saved offers",
-        "started": started,
-        "finished": datetime.now()
-    }
 
 def validate_uuid4(uuid_string: Union[uuid.UUID, str]) -> bool:
     """
