@@ -28,8 +28,9 @@ def create_app():
     # configure Flask app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(config.Config)
-    app.config.from_envvar('APPLICATION_SETTINGS')
-    
+
+    import logging
+    logging.info(app.config["SQLALCHEMY_DATABASE_URI"])
     
     initialize_extensions(app)
     register_blueprints(app)

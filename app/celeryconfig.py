@@ -1,8 +1,8 @@
 from celery.schedules import crontab
 import os
 
-BROKER_URL="redis://localhost:6379/0"
-CELERY_RESULT_BACKEND="redis://localhost:6379/1"
+BROKER_URL="redis://redis:6379/0"
+CELERY_RESULT_BACKEND="redis://redis:6379/1"
 
 CELERY_IMPORTS = ('app.tasks')
 CELERY_TASK_RESULT_EXPIRES = 30

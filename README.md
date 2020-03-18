@@ -12,6 +12,14 @@ Requirements:
 - Installed Docker
 - git clone this repository
 
+Set the following environment variables in an `./instance/production.env` file:
+- `POSTGRES_PASSWORD`
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_HOST`
+- `POSTGRES_PORT`
+- `OFFERS_MICROSERVICE_BASE_URL=https://applifting-python-excercise-ms.herokuapp.com/api/v1`
+
 Run the following bash command
  
 ```bash
@@ -25,9 +33,10 @@ Docker builds the following containers:
 - Celery worker
 
 
+
 ## API
 
-Api is served on address 0.0.0.0:5000, equipped with Swagger documentation.
+Api is served on address `0.0.0.0:5000`, equipped with Swagger documentation.
 
 
 

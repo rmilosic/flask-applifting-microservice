@@ -1,0 +1,9 @@
+.git
+venv
+instance
+migrations
+.envrc
+celerybeat-schedule
+celerybeat.pid
+pytest
+README.md

@@ -3,9 +3,7 @@ version: '3.1'
 services:
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     restart: always
     depends_on:
       - db
@@ -14,23 +12,23 @@ services:
       - 5000:5000
     env_file: 
       - ./instance/production.env
+    networks:
+      - web_nw
+      - db_nw
+    entrypoint: ["python", "main.py"]
+    volumes:
+        - .:/usr/src/app:ro
     
   db:
     image: postgres
     restart: always
     env_file:
       - ./instance/production.env
-      # POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
-      # POSTGRES_DB: postgres
-      # POSTGRES_USER: postgres
+    networks:
+      - db_nw
+      - web_nw
     ports:
       - 5432:5432
-
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
 
   redis:
     image: redis
@@ -39,13 +37,31 @@ services:
       - 6379:6379
     env_file:
       - ./instance/production.env
+    networks:
+      - redis_nw
+
 
   worker:
-    build:
+    build: 
       context: .
-    command: celery worker info -A app.celery_worker.celery -B -l 
+      dockerfile: Dockerfile-celery
+    command: "celery worker -A app.celery_worker.celery -B"
     depends_on:
       - "redis"
+      - "app"
+      - "db"
     env_file:
       - ./instance/production.env
-    
+    volumes:
+      - .:/usr/src/app:ro
+    networks:
+      - db_nw
+      - redis_nw
+
+networks:
+  db_nw:
+    driver: bridge
+  web_nw:
+    driver: bridge
+  redis_nw:
+    driver: bridge
