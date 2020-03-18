@@ -23,7 +23,7 @@ Set the following environment variables in an `./instance/production.env` file:
 Run the following bash command
  
 ```bash
-docker-compose -f stack-productin.yml up
+docker-compose -f stack-production.yml up
 ```
 
 Docker builds the following containers:
