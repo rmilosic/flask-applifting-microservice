@@ -6,8 +6,7 @@ from flask_session import Session
 from flask_migrate import Migrate
 from flask_restplus import Api
 
-from config import Config
-from app import celeryconfig
+from app import config, celeryconfig 
 from celery import Celery
 
 # api instance
@@ -28,7 +27,7 @@ def create_app():
     """Construct the core application."""
     # configure Flask app
     app = Flask(__name__, instance_relative_config=True)
-    app.config.from_object('config.Config')
+    app.config.from_object(config.Config)
     app.config.from_envvar('APPLICATION_SETTINGS')
     
     
@@ -40,7 +39,7 @@ def create_app():
 
 def register_blueprints(app):
 
-    from app.models import Product, Offer
+    
     from app.resources import ProductAPI, ProductListAPI, ProductOfferListAPI, OfferTrendAPI, OfferListAPI
 
     api.add_resource(ProductListAPI, '/products')
@@ -50,6 +49,8 @@ def register_blueprints(app):
     api.add_resource(OfferListAPI, '/offers')
 
 def initialize_extensions(app):
+    
+    from app.models import Product, Offer
     
     # initialize db
     db.init_app(app)
@@ -64,12 +65,13 @@ def initialize_extensions(app):
     api.init_app(app)
 
     init_celery(app, celery)
-        # with app.app_context():
+    
+    with app.app_context():
 
-    #     # Create tables for our models
-    #     db.create_all()
+        # Create tables for our models
+        db.create_all()
 
-    #     return app
+    return app
 
 
 def init_celery(app, celery):

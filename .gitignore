@@ -4,3 +4,6 @@ venv
 .vscode
 flask_session
 instance
+celerybeat-schedule
+celerybeat.pid
+.pytest_cache
